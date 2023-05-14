@@ -102,16 +102,16 @@ function draw_map()
         local id=mget(mx,my)
         local sp1,sp2
         if id==SP_CONV_LEFT1 then
-        		sp1=32; sp2=128
+            sp1=32; sp2=128
         end
         if id==SP_CONV_RIGHT1 then
-        		sp1=32; sp2=160
+            sp1=32; sp2=160
         end
         if id==SP_CONV_LEFT2 then
-        		sp1=100; sp2=128
+            sp1=100; sp2=128
         end
         if id==SP_CONV_RIGHT2 then
-        		sp1=100; sp2=160
+            sp1=100; sp2=160
         end
         if fget(id,2) then
             spr(sp1,6*8+mx*8,4+my*8,0,1,0,0,2,2)
@@ -132,15 +132,15 @@ function draw_map()
                 if scores[posstr(mx,my)] then 
                     local tw=print(scores[posstr(mx,my)],0,-6,0,false,1,true)
                     for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
-		                    print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
+		                print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
                     end
                     print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
                 end
                 for i,a in ipairs(active) do
                     if a.x==mx and a.y==my and a.sc>0 then
                         local tw=print(a.sc,0,-6,0,false,1,true)
-				                    for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
-                        		print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)                 
+				        for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
+                            print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)                 
                         end
                         print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)                 
                     end
