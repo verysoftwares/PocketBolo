@@ -143,6 +143,95 @@ function select_active(mox,moy)
 		end
 end
 
+function move_vert(i,dy)
+		local a=active[i]
+		if a.y+dy<16 and a.y+dy>=0 then
+		for sx=0,2-1 do for sy=0,2-1 do
+				mset(a.x+sx,a.y+dy+sy,mget(a.x+sx,a.y+sy))
+				mset(a.x+sx,a.y+sy,0)
+		end end
+		a.y=a.y+dy
+		a.sc=a.sc+10
+		sfx(19,'C-5',16,2)
+		else
+		rem_active(i)
+		end
+end
+
+function obj_collide(i,id,dx,dy)
+		local a=active[i]
+		if mget(a.x,a.y)~=id then
+		for sx=0,2-1 do for sy=0,2-1 do
+				mset(a.x+sx,a.y+sy,0)
+				mset(a.x+sx+dx,a.y+dy+sy,0)
+		end end
+		scores[posstr(a.x,a.y+dy)]=nil
+		coll[posstr(a.x,a.y)]=0
+		coll[posstr(a.x+dx,a.y+dy)]=0
+		sfx(20,'A-5',32,2)
+		end
+end
+
+function move_horiz(i,id,dx,dy)
+		local a=active[i]
+		if dx<0 then 
+				if id==64 then
+						local base=130--96
+						for sx=0,2-1 do for sy=0,2-1 do
+								mset(a.x+sx,a.y+dy+sy,base+sx+sy*16)
+						end end
+						sfx(19,'G-5',16,2)
+				elseif id==98 then
+						for sx=0,2-1 do for sy=0,2-1 do
+								mset(a.x+sx,a.y+dy+sy,0)
+						end end
+						coll[posstr(a.x,a.y+dy)]=0
+						sfx(20,'A-5',32,2)
+				end
+		else
+				if id==96 then
+						local base=98--64
+						for sx=0,2-1 do for sy=0,2-1 do
+								mset(a.x+sx,a.y+dy+sy,base+sx+sy*16)
+						end end
+						sfx(19,'G-5',16,2)
+				elseif id==130 then
+						for sx=0,2-1 do for sy=0,2-1 do
+								mset(a.x+sx,a.y+dy+sy,0)
+						end end
+						coll[posstr(a.x,a.y+dy)]=0
+						sfx(20,'A-5',32,2)
+				end
+		end
+				
+		a.sc=a.sc+10
+		local id3=mget(a.x+dx,a.y)
+		if id3==0 then
+				if a.x+dx>=0 and a.x+dx<18 then
+						for sx=0,2-1 do for sy=0,2-1 do
+								mset(a.x+sx+dx,a.y+sy,mget(a.x+sx,a.y+sy))
+								mset(a.x+sx,a.y+sy,0)
+						end end
+						a.x=a.x+dx
+				else
+						if (dx<0 and id==64) or (dx>0 and id==96) then
+								rem_active(i)
+						end
+				end
+		else
+				if id3==68 or id3==34 then
+						obj_collide(i,id3,dx,0)
+						if mget(a.x,a.y)==0 or mget(a.x,a.y+dy)~=0 then
+								rem_active(i)
+						end
+				else
+						if (dx<0 and id==64) or (dx>0 and id==96) then
+						rem_active(i)
+						end
+				end
+		end		
+end
+
 function process_active()
 		table.sort(active,function(a,b) 
 				if mget(a.x,a.y)==34 then return a.y<b.y end
@@ -157,127 +246,14 @@ function process_active()
 						if id==68 then dy= 2 end
 						local id2=mget(a.x,a.y+dy)
 						if id2==0 then
-						if a.y+dy<16 and a.y+dy>=0 then
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx,a.y+dy+sy,mget(a.x+sx,a.y+sy))
-								mset(a.x+sx,a.y+sy,0)
-						end end
-						a.y=a.y+dy
-						a.sc=a.sc+10
-						sfx(19,'C-5',16,2)
-						else
-						rem_active(i)
-						end
-						elseif (mget(a.x,a.y)==34 and (id2==68 or id2==34)) or (mget(a.x,a.y)==68 and (id2==34 or id2==68)) then
-								if mget(a.x,a.y)~=id2 then
-								for sx=0,2-1 do for sy=0,2-1 do
-										mset(a.x+sx,a.y+sy,0)
-										mset(a.x+sx,a.y+dy+sy,0)
-								end end
-								scores[posstr(a.x,a.y+dy)]=nil
-								coll[posstr(a.x,a.y)]=0
-								coll[posstr(a.x,a.y+dy)]=0
-								sfx(20,'A-5',32,2)
-								end
+								move_vert(i,dy)
+						elseif id2==68 or id2==34 then
+								obj_collide(i,id2,0,dy)
 								rem_active(i)
 						elseif id2==64 or id2==98 then
-						if id2==64 then
-						local base=130--96
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx,a.y+dy+sy,base+sx+sy*16)
-						end end
-						sfx(19,'G-5',16,2)
-						elseif id2==98 then
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx,a.y+dy+sy,0)
-						end end
-						coll[posstr(a.x,a.y+dy)]=0
-						sfx(20,'A-5',32,2)
-						end
-						a.sc=a.sc+10
-						local id3=mget(a.x-2,a.y)
-						if id3==0 then
-						if a.x-2>=0 then
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx-2,a.y+sy,mget(a.x+sx,a.y+sy))
-								mset(a.x+sx,a.y+sy,0)
-						end end
-						a.x=a.x-2
-						else
-						if id2==64 then
-						rem_active(i)
-						end
-						end
-						else
-						if (mget(a.x,a.y)==34 and (id3==68 or id3==34)) or (mget(a.x,a.y)==68 and (id3==34 or id3==68)) then
-						if mget(a.x,a.y)~=id3 then
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx,a.y+sy,0)
-								mset(a.x-2+sx,a.y+sy,0)
-						end end
-						scores[posstr(a.x-2,a.y)]=nil
-						coll[posstr(a.x,a.y)]=0
-						coll[posstr(a.x-2,a.y)]=0
-						sfx(20,'A-5',32,2)
-						end
-						if mget(a.x,a.y)==0 or mget(a.x,a.y+dy)~=0 then
-						rem_active(i)
-						end
-						else
-						if id2==64 then
-						rem_active(i)
-						end
-						end
-						end
+								move_horiz(i,id2,-2,dy)
 						elseif id2==96 or id2==130 then
-						if id2==96 then
-						local base=98--64
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx,a.y+dy+sy,base+sx+sy*16)
-						end end
-						sfx(19,'G-5',16,2)
-						elseif id2==130 then
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx,a.y+dy+sy,0)
-						end end
-						coll[posstr(a.x,a.y+dy)]=0
-						sfx(20,'A-5',32,2)
-						end
-						a.sc=a.sc+10
-						local id3=mget(a.x+2,a.y)
-						if id3==0 then
-						if a.x+2<18 then
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx+2,a.y+sy,mget(a.x+sx,a.y+sy))
-								mset(a.x+sx,a.y+sy,0)
-						end end
-						a.x=a.x+2
-						else
-						if id2==96 then
-						rem_active(i)
-						end
-						end
-						else
-						if (mget(a.x,a.y)==34 and (id3==68 or id3==34)) or (mget(a.x,a.y)==68 and (id3==34 or id3==68)) then
-						if mget(a.x,a.y)~=id3 then
-						for sx=0,2-1 do for sy=0,2-1 do
-								mset(a.x+sx,a.y+sy,0)
-								mset(a.x+2+sx,a.y+sy,0)
-						end end
-						scores[posstr(a.x+2,a.y)]=nil
-						coll[posstr(a.x,a.y)]=0
-						coll[posstr(a.x+2,a.y)]=0
-						sfx(20,'A-5',32,2)
-						end
-						if mget(a.x,a.y)==0 or mget(a.x,a.y+dy)~=0 then
-						rem_active(i)
-						end
-						else
-						if id2==96 then
-						rem_active(i)
-						end
-						end
-						end
+								move_horiz(i,id2, 2,dy)
 						end
 				end
 		end
@@ -412,22 +388,9 @@ function update()
 
 		cls(12)
 		
-		-- handle mouse
-		-- also for AI
-				local mox,moy=get_mouse()		
-				mox,moy=snap_to_grid(mox,moy)
-				rect(mox,moy,16,16,0)
-				select_active(mox,moy)
+		handle_mouse()
 
-		-- game tick
-				if t%16==0 then
-						process_active()
-
-						if (turnstart and #active==0) 
-						or (ai_select(turn)<0 and not gameover()) then
-								end_turn()
-						end
-				end
+		game_tick()
 					
 		draw_bg()
 		
@@ -440,6 +403,24 @@ function update()
 		end
 		
 		t=t+1
+end
+
+function handle_mouse()
+		local mox,moy=get_mouse()		
+		mox,moy=snap_to_grid(mox,moy)
+		rect(mox,moy,16,16,0)
+		select_active(mox,moy)
+end
+
+function game_tick()
+	if t%16==0 then
+				process_active()
+
+				if (turnstart and #active==0) 
+				or (ai_select(turn)<0 and not gameover()) then
+						end_turn()
+				end
+		end
 end
 
 function gameover()
