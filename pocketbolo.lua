@@ -100,6 +100,49 @@ function ai_select(j)
 		return 6*8+sel.x*8,4+sel.y*8
 end
 
+function get_mouse()
+		leftheld=left
+		mox,moy,left=mouse()
+		
+		if chars[turn][chars[turn].i]=='AI' and not turnstart then 
+		pers_mox,pers_moy=ai_select(turn) 
+		left=true; leftheld=false 
+		end
+
+		if pers_mox and pers_moy then
+				return pers_mox,pers_moy
+		end
+		
+		return mox,moy
+end
+
+function snap_to_grid(mox,moy)
+		return mox-mox%16,(moy-4)-(moy-4)%16+4
+end
+
+function select_active(mox,moy)
+		local tilex,tiley=(mox-6*8)/8,(moy-4)/8
+		if left and not leftheld and #active==0 then
+				if (turn==1 and mget(tilex,tiley)==34) or (turn==2 and mget(tilex,tiley)==68) then
+						--trace('balloon')
+						turnstart=true
+						local found=false
+						for i,a in ipairs(active) do
+								if a.x==tilex and a.y==tiley then found=true; break end
+						end
+						if not found then
+						table.insert(active,{x=tilex,y=tiley,sc=0})
+
+						-- inherit score from BG to new active
+								if scores[posstr(tilex,tiley)] then
+										active[#active].sc=scores[posstr(tilex,tiley)]
+										scores[posstr(tilex,tiley)]=nil
+								end
+						end
+				end
+		end
+end
+
 coll={}
 function update()
 
@@ -109,39 +152,16 @@ function update()
 		if btn(3) then x=x+1 end]]
 		
 		cls(12)
-	
-		leftheld=left
-		mox,moy,left=mouse()
 		
-		if chars[turn][chars[turn].i]=='AI' and not turnstart then pers_mox,pers_moy=ai_select(turn); left=true; leftheld=false end
-	
-		if pers_mox and pers_moy then mox=pers_mox; moy=pers_moy end
-	
+		local mox,moy=get_mouse()		
+		mox,moy=snap_to_grid(mox,moy)
+		rect(mox,moy,16,16,0)
+
 		if ai_select(turn)<0 and not (ai_select(1)<0 and ai_select(2)<0) then
 				end_turn()
 		end
-		
-		mox=mox-mox%16
-		moy=(moy-4)-(moy-4)%16+4
-		rect(mox,moy,16,16,0)
-		local gx,gy=(mox-6*8)/8,(moy-4)/8
-		if left and not leftheld and #active==0 then
-				if (turn==1 and mget(gx,gy)==34) or (turn==2 and mget(gx,gy)==68) then
-						--trace('balloon')
-						turnstart=true
-						local found=false
-						for i,a in ipairs(active) do
-								if a.x==gx and a.y==gy then found=true; break end
-						end
-						if not found then
-						table.insert(active,{x=gx,y=gy,sc=0})
-						if scores[posstr(gx,gy)] then
-								active[#active].sc=scores[posstr(gx,gy)]
-								scores[posstr(gx,gy)]=nil
-						end
-						end
-				end
-		end
+
+		select_active(mox,moy)
 		
 		if t%16==0 then
 		table.sort(active,function(a,b) 
