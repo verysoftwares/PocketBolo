@@ -100,56 +100,48 @@ end
 function draw_map()
     for mx=30-12-1,0,-1 do for my=16-1,0,-1 do
         local id=mget(mx,my)
+        local sp1,sp2
         if id==SP_CONV_LEFT1 then
-        --rect(6*8+mx*8,4+my*8,16,16,0)
-        spr(32,6*8+mx*8,4+my*8,0,1,0,0,2,2)
-        clip(6*8+mx*8+1,4+my*8+2,14,12)
-        spr(128,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
-        spr(128,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
-        clip()
-        elseif id==SP_CONV_RIGHT1 then
-        spr(32,6*8+mx*8,4+my*8,0,1,0,0,2,2)
-        clip(6*8+mx*8+1,4+my*8+2,14,12)
-        spr(160,6*8+mx*8+t*0.2%16,4+my*8,0,1,0,0,2,2)
-        spr(160,6*8+mx*8-16+t*0.2%16,4+my*8,0,1,0,0,2,2)
-        clip()
-        elseif id==SP_CONV_LEFT2 then
-        spr(100,6*8+mx*8,4+my*8,0,1,0,0,2,2)
-        clip(6*8+mx*8+1,4+my*8+2,14,12)
-        spr(128,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
-        spr(128,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
-        clip()
-        elseif id==SP_CONV_RIGHT2 then
-        spr(100,6*8+mx*8,4+my*8,0,1,0,0,2,2)
-        clip(6*8+mx*8+1,4+my*8+2,14,12)
-        spr(160,6*8+mx*8+t*0.2%16,4+my*8,0,1,0,0,2,2)
-        spr(160,6*8+mx*8-16+t*0.2%16,4+my*8,0,1,0,0,2,2)
-        clip()
+        		sp1=32; sp2=128
+        end
+        if id==SP_CONV_RIGHT1 then
+        		sp1=32; sp2=160
+        end
+        if id==SP_CONV_LEFT2 then
+        		sp1=100; sp2=128
+        end
+        if id==SP_CONV_RIGHT2 then
+        		sp1=100; sp2=160
+        end
+        if fget(id,2) then
+            spr(sp1,6*8+mx*8,4+my*8,0,1,0,0,2,2)
+            clip(6*8+mx*8+1,4+my*8+2,14,12)
+            spr(sp2,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
+            spr(sp2,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
+            clip()
         elseif id==SP_PURSE and mx==gx and my==gy then
-        spr(70,6*8+mx*8,4+my*8,0,1,0,0,2,2)
+            spr(70,6*8+mx*8,4+my*8,0,1,0,0,2,2)
         elseif id==SP_BALLOON and mx==gx and my==gy then
-        spr(38,6*8+mx*8,4+my*8,0,1,0,0,2,2)
+            spr(38,6*8+mx*8,4+my*8,0,1,0,0,2,2)
         elseif id~=64+1 and id~=64+16 and id~=64+16+1 and id~=96+1 and id~=96+16 and id~=96+16+1 then
-        spr(id,6*8+mx*8,4+my*8,0)
+            spr(id,6*8+mx*8,4+my*8,0)
         end
 
         -- score labels
-            if id==34 or id==68 then
+            if id==SP_BALLOON or id==SP_PURSE then
                 if scores[posstr(mx,my)] then 
                     local tw=print(scores[posstr(mx,my)],0,-6,0,false,1,true)
-                    print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2-1,4+my*8+6,1,false,1,true)
-                    print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+1,4+my*8+6,1,false,1,true)
-                    print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8-1+6,1,false,1,true)
-                    print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+1+6,1,false,1,true)
+                    for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
+		                    print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
+                    end
                     print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
                 end
                 for i,a in ipairs(active) do
                     if a.x==mx and a.y==my and a.sc>0 then
                         local tw=print(a.sc,0,-6,0,false,1,true)
-                        print(a.sc,6*8+mx*8+8-tw/2-1,4+my*8+6,1,false,1,true)                 
-                        print(a.sc,6*8+mx*8+8-tw/2+1,4+my*8+6,1,false,1,true)                 
-                        print(a.sc,6*8+mx*8+8-tw/2,4+my*8-1+6,1,false,1,true)                 
-                        print(a.sc,6*8+mx*8+8-tw/2,4+my*8+1+6,1,false,1,true)                 
+				                    for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
+                        		print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)                 
+                        end
                         print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)                 
                     end
                 end
@@ -643,7 +635,7 @@ end
 -- </TRACKS>
 
 -- <FLAGS>
--- 000:20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020002000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+-- 000:20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000060006000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 -- </FLAGS>
 
 -- <SCREEN>
