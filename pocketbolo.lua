@@ -75,15 +75,15 @@ function draw_scores()
     -- borders
     -- flashing if your turn
         if turn==1 then
-        local col=3
-        if t%32>=16 then col=1 end
-        rectb(0,4,6*8,136-8,col)
-        rectb(240-6*8,4,6*8,136-8,6)
+            local col=3
+            if t%32>=16 then col=1 end
+            rectb(0,4,6*8,136-8,col)
+            rectb(240-6*8,4,6*8,136-8,6)
         elseif turn==2 then
-        local col=6
-        if t%32>=16 then col=1 end
-        rectb(240-6*8,4,6*8,136-8,col)
-        rectb(0,4,6*8,136-8,3)
+            local col=6
+            if t%32>=16 then col=1 end
+            rectb(240-6*8,4,6*8,136-8,col)
+            rectb(0,4,6*8,136-8,3)
         end
 
     -- vertical numbers   
@@ -97,7 +97,6 @@ function draw_scores()
         end
 end
 
-dirs={{-1,0},{1,0},{0,-1},{0,1}}
 function draw_map()
     for mx=30-12-1,0,-1 do for my=16-1,0,-1 do
         local id=mget(mx,my)
@@ -117,8 +116,16 @@ function draw_map()
         if fget(id,2) then
             spr(sp1,6*8+mx*8,4+my*8,0,1,0,0,2,2)
             clip(6*8+mx*8+1,4+my*8+2,14,12)
-            spr(sp2,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
-            spr(sp2,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
+            if sp2==128 then
+                spr(sp2,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
+            elseif sp2==160 then
+                spr(sp2,6*8+mx*8+t*0.2%16,4+my*8,0,1,0,0,2,2)
+            end
+            if sp2==128 then
+                spr(sp2,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
+            elseif sp2==160 then
+                spr(sp2,6*8+mx*8-16+t*0.2%16,4+my*8,0,1,0,0,2,2)
+            end
             clip()
         elseif id==SP_PURSE and mx==gx and my==gy then
             spr(70,6*8+mx*8,4+my*8,0,1,0,0,2,2)
@@ -132,15 +139,15 @@ function draw_map()
             if id==SP_BALLOON or id==SP_PURSE then
                 if scores[posstr(mx,my)] then 
                     local tw=print(scores[posstr(mx,my)],0,-6,0,false,1,true)
-                    for i,v in ipairs(dirs) do
-                        print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
+                    for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
+		                print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
                     end
                     print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
                 end
                 for i,a in ipairs(active) do
                     if a.x==mx and a.y==my and a.sc>0 then
                         local tw=print(a.sc,0,-6,0,false,1,true)
-                        for i,v in ipairs(dirs) do
+				        for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
                             print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)                 
                         end
                         print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)                 
@@ -227,8 +234,8 @@ function get_mouse()
     mox,moy,left=mouse()
     
     if chars[turn][chars[turn].i]=='AI' and not turnstart then 
-    pers_mox,pers_moy=ai_select(turn) 
-    left=true; leftheld=false 
+        pers_mox,pers_moy=ai_select(turn) 
+        left=true; leftheld=false 
     end
 
     if pers_mox and pers_moy then
