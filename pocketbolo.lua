@@ -143,27 +143,7 @@ function select_active(mox,moy)
 		end
 end
 
-coll={}
-function update()
-
-		--[[if btn(0) then y=y-1 end
-		if btn(1) then y=y+1 end
-		if btn(2) then x=x-1 end
-		if btn(3) then x=x+1 end]]
-		
-		cls(12)
-		
-		local mox,moy=get_mouse()		
-		mox,moy=snap_to_grid(mox,moy)
-		rect(mox,moy,16,16,0)
-
-		if ai_select(turn)<0 and not (ai_select(1)<0 and ai_select(2)<0) then
-				end_turn()
-		end
-
-		select_active(mox,moy)
-		
-		if t%16==0 then
+function process_active()
 		table.sort(active,function(a,b) 
 				if mget(a.x,a.y)==34 then return a.y<b.y end
 				if mget(a.x,a.y)==68 then return a.y>b.y end
@@ -301,44 +281,35 @@ function update()
 						end
 				end
 		end
-		if turnstart and #active==0 then
-				end_turn()
-		end
-		end
-	
-		draw_bg()
-		
-		if turn==1 then
-		local col=3
-		if t%32>=16 then col=1 end
-		rectb(0,4,6*8,136-8,col)
-		rectb(240-6*8,4,6*8,136-8,6)
-		elseif turn==2 then
-		local col=6
-		if t%32>=16 then col=1 end
-		rectb(240-6*8,4,6*8,136-8,col)
-		rectb(0,4,6*8,136-8,3)
-		end
-		
-		for j=1,2 do
-		local msg=string.format('%.5d',get_score(j))
-		local col=3
-		if j==2 then col=6 end
-		for c=1,#msg do
-		print(string.sub(msg,c,c),6*8/2-3+(j-1)*(240-6*8),48+c*6,col)
-		end
-		end
-		--[[map(0,0,30-12,16,6*8,4,0,1,function(id,tx,ty) 
-				local tile,flip,rotate=id,0,0
-				
-				if tile==64 then 
-						tile=32
-						rect(tx*8+6*8,ty*8+4,16,16,0)
+end
+
+function draw_scores()
+		-- borders
+		-- flashing if your turn
+				if turn==1 then
+				local col=3
+				if t%32>=16 then col=1 end
+				rectb(0,4,6*8,136-8,col)
+				rectb(240-6*8,4,6*8,136-8,6)
+				elseif turn==2 then
+				local col=6
+				if t%32>=16 then col=1 end
+				rectb(240-6*8,4,6*8,136-8,col)
+				rectb(0,4,6*8,136-8,3)
 				end
-				
-				return tile,flip,rotate
-		end)]]
-		
+
+		-- vertical numbers		
+				for j=1,2 do
+				local msg=string.format('%.5d',get_score(j))
+				local col=3
+				if j==2 then col=6 end
+				for c=1,#msg do
+				print(string.sub(msg,c,c),6*8/2-3+(j-1)*(240-6*8),48+c*6,col)
+				end
+				end
+end
+
+function draw_map()
 		for mx=30-12-1,0,-1 do for my=16-1,0,-1 do
 				local id=mget(mx,my)
 				if id==64 then
@@ -373,61 +344,106 @@ function update()
 				elseif id~=64+1 and id~=64+16 and id~=64+16+1 and id~=96+1 and id~=96+16 and id~=96+16+1 then
 				spr(id,6*8+mx*8,4+my*8,0)
 				end
-				if id==34 or id==68 then
-						if scores[posstr(mx,my)] then 
-								local tw=print(scores[posstr(mx,my)],0,-6,0,false,1,true)
-								print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2-1,4+my*8+6,1,false,1,true)
-								print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+1,4+my*8+6,1,false,1,true)
-								print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8-1+6,1,false,1,true)
-								print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+1+6,1,false,1,true)
-								print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
-						end
-						for i,a in ipairs(active) do
-								if a.x==mx and a.y==my and a.sc>0 then
-										local tw=print(a.sc,0,-6,0,false,1,true)
-										print(a.sc,6*8+mx*8+8-tw/2-1,4+my*8+6,1,false,1,true)									
-										print(a.sc,6*8+mx*8+8-tw/2+1,4+my*8+6,1,false,1,true)									
-										print(a.sc,6*8+mx*8+8-tw/2,4+my*8-1+6,1,false,1,true)									
-										print(a.sc,6*8+mx*8+8-tw/2,4+my*8+1+6,1,false,1,true)									
-										print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)									
+
+				-- score labels
+						if id==34 or id==68 then
+								if scores[posstr(mx,my)] then 
+										local tw=print(scores[posstr(mx,my)],0,-6,0,false,1,true)
+										print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2-1,4+my*8+6,1,false,1,true)
+										print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+1,4+my*8+6,1,false,1,true)
+										print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8-1+6,1,false,1,true)
+										print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+1+6,1,false,1,true)
+										print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
+								end
+								for i,a in ipairs(active) do
+										if a.x==mx and a.y==my and a.sc>0 then
+												local tw=print(a.sc,0,-6,0,false,1,true)
+												print(a.sc,6*8+mx*8+8-tw/2-1,4+my*8+6,1,false,1,true)									
+												print(a.sc,6*8+mx*8+8-tw/2+1,4+my*8+6,1,false,1,true)									
+												print(a.sc,6*8+mx*8+8-tw/2,4+my*8-1+6,1,false,1,true)									
+												print(a.sc,6*8+mx*8+8-tw/2,4+my*8+1+6,1,false,1,true)									
+												print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)									
+										end
 								end
 						end
-				end
 		end end
-	
-		for k,c in pairs(coll) do
-				local cx,cy=strpos(k)
-				spr(102,6*8+cx*8,4+cy*8,0,1,0,0,2,2)
-				coll[k]=c+1
-				if coll[k]>16 then coll[k]=nil end
+		
+		-- explosions for recently destroyed objects
+				for k,c in pairs(coll) do
+						local cx,cy=strpos(k)
+						spr(102,6*8+cx*8,4+cy*8,0,1,0,0,2,2)
+						coll[k]=c+1
+						if coll[k]>16 then coll[k]=nil end
+				end
+end
+
+function view_results()
+		sc_t=sc_t or t
+		local tw
+		local msg
+		if get_score(1)>get_score(2) then
+				msg='Orange wins!'
 		end
+		if get_score(1)==get_score(2) then
+				msg='It\'s a tie!'
+		end
+		if get_score(2)>get_score(1) then
+				msg='Green wins!'
+		end
+		tw=print(msg,0,-6*3,0,false,3,false)
+		print(msg,240/2-tw/2,136/2-6-3+3,1,false,3,false)
+		print(msg,240/2-tw/2,136/2-6-3,4,false,3,false)
+		rect(240/2-tw/2-3,136/2-6-3-3,tw+6,3,4)
+		rect(240/2-tw/2-3,136/2+6+3,tw+6,3,1)
+
+		tw=print('R to reset.',0,-6,0,false,1,false)
+		print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4+1,1,false,1,false)
+		print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4,4,false,1,false)
+		if keyp(18) or (demo and t-sc_t>5*60) then 
+		reset() 
+		end
+end
+
+coll={}
+function update()
+
+		--[[if btn(0) then y=y-1 end
+		if btn(1) then y=y+1 end
+		if btn(2) then x=x-1 end
+		if btn(3) then x=x+1 end]]
+		
+		cls(12)
+		
+		-- handle mouse
+		-- also for AI
+				local mox,moy=get_mouse()		
+				mox,moy=snap_to_grid(mox,moy)
+				rect(mox,moy,16,16,0)
+				select_active(mox,moy)
+
+		if t%16==0 then
+				process_active()
+				if (turnstart and #active==0) 
+				or (ai_select(turn)<0 and not gameover()) then
+						end_turn()
+				end
+		end
+					
+		draw_bg()
+		
+		draw_scores()
+
+		draw_map()		
 	
-		if ai_select(1)<0 and ai_select(2)<0 then
-				sc_t=sc_t or t
-				local tw
-				local msg
-				if get_score(1)>get_score(2) then
-						msg='Orange wins!'
-				end
-				if get_score(1)==get_score(2) then
-						msg='It\'s a tie!'
-				end
-				if get_score(2)>get_score(1) then
-						msg='Green wins!'
-				end
-				tw=print(msg,0,-6*3,0,false,3,false)
-				print(msg,240/2-tw/2,136/2-6-3+3,1,false,3,false)
-				print(msg,240/2-tw/2,136/2-6-3,4,false,3,false)
-				rect(240/2-tw/2-3,136/2-6-3-3,tw+6,3,4)
-				rect(240/2-tw/2-3,136/2+6+3,tw+6,3,1)
-				tw=print('R to reset.',0,-6,0,false,1,false)
-				print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4+1,1,false,1,false)
-				print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4,4,false,1,false)
-				if keyp(18) or (demo and t-sc_t>5*60) then reset() end
+		if gameover() then
+				view_results()
 		end
 		
-		--print("HELLO WORLD!",84,84)
 		t=t+1
+end
+
+function gameover()
+		return ai_select(1)<0 and ai_select(2)<0
 end
 
 function end_turn()
