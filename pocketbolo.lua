@@ -379,26 +379,29 @@ end
 
 function view_results()
 		sc_t=sc_t or t
+		
+		rect(0,16-2,240,32,9)
+		
 		local tw
 		local msg
+		local col
 		if get_score(1)>get_score(2) then
 				msg='Orange wins!'
+				col=3
 		end
 		if get_score(1)==get_score(2) then
 				msg='It\'s a tie!'
+				col=4
 		end
 		if get_score(2)>get_score(1) then
 				msg='Green wins!'
+				col=6
 		end
-		tw=print(msg,0,-6*3,0,false,3,false)
-		print(msg,240/2-tw/2,136/2-6-3+3,1,false,3,false)
-		print(msg,240/2-tw/2,136/2-6-3,4,false,3,false)
-		rect(240/2-tw/2-3,136/2-6-3-3,tw+6,3,4)
-		rect(240/2-tw/2-3,136/2+6+3,tw+6,3,1)
-
+		draw_logo(msg,3,col)
+		
 		tw=print('R to reset.',0,-6,0,false,1,false)
-		print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4+1,1,false,1,false)
-		print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4,4,false,1,false)
+		print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4+1-32-10,1,false,1,false)
+		print('R to reset.',240/2-tw/2,136/2-6-3+6*3+4-32-10,4,false,1,false)
 		if keyp(18) or (demo and t-sc_t>5*60) then 
 		reset() 
 		end
@@ -407,11 +410,6 @@ end
 coll={}
 function update()
 
-		--[[if btn(0) then y=y-1 end
-		if btn(1) then y=y+1 end
-		if btn(2) then x=x-1 end
-		if btn(3) then x=x+1 end]]
-		
 		cls(12)
 		
 		-- handle mouse
@@ -421,13 +419,15 @@ function update()
 				rect(mox,moy,16,16,0)
 				select_active(mox,moy)
 
-		if t%16==0 then
-				process_active()
-				if (turnstart and #active==0) 
-				or (ai_select(turn)<0 and not gameover()) then
-						end_turn()
+		-- game tick
+				if t%16==0 then
+						process_active()
+
+						if (turnstart and #active==0) 
+						or (ai_select(turn)<0 and not gameover()) then
+								end_turn()
+						end
 				end
-		end
 					
 		draw_bg()
 		
@@ -459,17 +459,26 @@ chars={
 }
 fade=0
 function titlescr()
+
 		cls(12)
 		
-		rect(6*8+12-fade*3,42+10,120,13,3)
-		circ(6*8+12-fade*3,42+10+6,7,3)
-		circ(6*8+12-fade*3+120,42+10+6,7,3)
-		print('Orange player is...',6*8+12+4-fade*3,42+10-6,3,false,1,true)
-		rect(6*8+12+fade*3,42+10+30,120,13,6)
-		circ(6*8+12+fade*3,42+10+6+30,7,6)
-		circ(6*8+12+fade*3+120,42+10+6+30,7,6)
-		print('Green player is...',6*8+12+4+fade*3,42+10-6+30,6,false,1,true)
+		leftheld=left
+		mox,moy,left=mouse()
+		
+		select_players()
 
+		start_game()
+
+		draw_bg()
+
+		draw_logo('PocketBolo',2,2)
+				
+		if fadeout then fade=fade+1
+		if fade==60 then TIC=update; music(1) end
+		end
+end
+
+function start_game()
 		rect(6*8+12+40-fade*3,42+10+30+30,120-40*2,13,13)
 		circ(6*8+12+40-fade*3,42+10+6+30+30,7,13)
 		circ(6*8+12+120-40-fade*3,42+10+6+30+30,7,13)
@@ -481,17 +490,26 @@ function titlescr()
 				music()
 				fadeout=true
 		end
-		
-		draw_bg()
-		
-		local tw=print('PocketBolo',0,-6*2,0,false,2,false)
-		print('PocketBolo',240/2-tw/2,6*2+2,1,false,2,false)
-		print('PocketBolo',240/2-tw/2,6*2,2,false,2,false)
-		rect(240/2-tw/2-4,6*2-2,tw+4*2,2,2)
-		rect(240/2-tw/2-4,6*2+6*2,tw+4*2,2,1)
-		
-		leftheld=left
-		mox,moy,left=mouse()
+end
+
+function draw_logo(logo,scale,color)
+		local tw=print(logo,0,-6*scale,0,false,scale,false)
+		print(logo,240/2-tw/2,6*scale+scale,1,false,scale,false)
+		print(logo,240/2-tw/2,6*scale,color,false,scale,false)
+		rect(240/2-tw/2-2*scale,6*scale-scale,tw+4*scale,scale,color)
+		rect(240/2-tw/2-2*scale,6*scale+6*scale,tw+4*scale,scale,1)
+end
+
+function select_players()
+		rect(6*8+12-fade*3,42+10,120,13,3)
+		circ(6*8+12-fade*3,42+10+6,7,3)
+		circ(6*8+12-fade*3+120,42+10+6,7,3)
+		print('Orange player is...',6*8+12+4-fade*3,42+10-6,3,false,1,true)
+		rect(6*8+12+fade*3,42+10+30,120,13,6)
+		circ(6*8+12+fade*3,42+10+6+30,7,6)
+		circ(6*8+12+fade*3+120,42+10+6+30,7,6)
+		print('Green player is...',6*8+12+4+fade*3,42+10-6+30,6,false,1,true)
+
 		for i,c in ipairs(chars) do
 				for j,d in ipairs(c) do
 						local tw=print(d,6*8+12+8+(j-1)*64+20-4,42+10+6-2+(i-1)*30,12,false,1,true)
@@ -503,10 +521,6 @@ function titlescr()
 								rectb(6*8+12+8+(j-1)*64+20-4-2,42+10+6-2+(i-1)*30-2,tw+2+1,8+1,12)
 						end
 				end
-		end
-
-		if fadeout then fade=fade+1
-		if fade==60 then TIC=update; music(1) end
 		end
 end
 
