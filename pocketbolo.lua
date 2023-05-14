@@ -15,6 +15,13 @@ turn=1
 
 scores={}
 
+SP_BALLOON=34
+SP_PURSE=68
+SP_CONV_LEFT1=64
+SP_CONV_LEFT2=98
+SP_CONV_RIGHT1=96
+SP_CONV_RIGHT2=130
+
 for sx=0,18-1,2 do for sy=0,16-1,2 do
 		if math.random()<0.4 and mget(sx,sy)==0 then
 				--[[if math.random()<0.5 then
@@ -175,13 +182,13 @@ end
 function move_horiz(i,id,dx,dy)
 		local a=active[i]
 		if dx<0 then 
-				if id==64 then
-						local base=130--96
+				if id==SP_CONV_LEFT1 then
+						local base=SP_CONV_RIGHT2--96
 						for sx=0,2-1 do for sy=0,2-1 do
 								mset(a.x+sx,a.y+dy+sy,base+sx+sy*16)
 						end end
 						sfx(19,'G-5',16,2)
-				elseif id==98 then
+				elseif id==SP_CONV_LEFT2 then
 						for sx=0,2-1 do for sy=0,2-1 do
 								mset(a.x+sx,a.y+dy+sy,0)
 						end end
@@ -189,13 +196,13 @@ function move_horiz(i,id,dx,dy)
 						sfx(20,'A-5',32,2)
 				end
 		else
-				if id==96 then
-						local base=98--64
+				if id==SP_CONV_RIGHT1 then
+						local base=SP_CONV_LEFT2
 						for sx=0,2-1 do for sy=0,2-1 do
 								mset(a.x+sx,a.y+dy+sy,base+sx+sy*16)
 						end end
 						sfx(19,'G-5',16,2)
-				elseif id==130 then
+				elseif id==SP_CONV_RIGHT2 then
 						for sx=0,2-1 do for sy=0,2-1 do
 								mset(a.x+sx,a.y+dy+sy,0)
 						end end
@@ -214,18 +221,18 @@ function move_horiz(i,id,dx,dy)
 						end end
 						a.x=a.x+dx
 				else
-						if (dx<0 and id==64) or (dx>0 and id==96) then
+						if (dx<0 and id==SP_CONV_LEFT1) or (dx>0 and id==SP_CONV_RIGHT1) then
 								rem_active(i)
 						end
 				end
 		else
-				if id3==68 or id3==34 then
+				if id3==SP_BALLOON or id3==SP_PURSE then
 						obj_collide(i,id3,dx,0)
 						if mget(a.x,a.y)==0 or mget(a.x,a.y+dy)~=0 then
 								rem_active(i)
 						end
 				else
-						if (dx<0 and id==64) or (dx>0 and id==96) then
+						if (dx<0 and id==SP_CONV_LEFT1) or (dx>0 and id==SP_CONV_RIGHT1) then
 						rem_active(i)
 						end
 				end
@@ -234,25 +241,25 @@ end
 
 function process_active()
 		table.sort(active,function(a,b) 
-				if mget(a.x,a.y)==34 then return a.y<b.y end
-				if mget(a.x,a.y)==68 then return a.y>b.y end
+				if mget(a.x,a.y)==SP_BALLOON then return a.y<b.y end
+				if mget(a.x,a.y)==SP_PURSE then return a.y>b.y end
 		end)
 		for i=#active,1,-1 do
 				local a=active[i]
 				local id=mget(a.x,a.y)
-				if id==34 or id==68 then
+				if id==SP_BALLOON or id==SP_PURSE then
 						local dy
-						if id==34 then dy=-2 end
-						if id==68 then dy= 2 end
+						if id==SP_BALLOON then dy=-2 end
+						if id==SP_PURSE   then dy= 2 end
 						local id2=mget(a.x,a.y+dy)
 						if id2==0 then
 								move_vert(i,dy)
-						elseif id2==68 or id2==34 then
+						elseif id2==SP_BALLOON or id2==SP_PURSE then
 								obj_collide(i,id2,0,dy)
 								rem_active(i)
-						elseif id2==64 or id2==98 then
+						elseif id2==SP_CONV_LEFT1 or id2==SP_CONV_LEFT2 then
 								move_horiz(i,id2,-2,dy)
-						elseif id2==96 or id2==130 then
+						elseif id2==SP_CONV_RIGHT1 or id2==SP_CONV_RIGHT2 then
 								move_horiz(i,id2, 2,dy)
 						end
 				end
@@ -288,34 +295,34 @@ end
 function draw_map()
 		for mx=30-12-1,0,-1 do for my=16-1,0,-1 do
 				local id=mget(mx,my)
-				if id==64 then
+				if id==SP_CONV_LEFT1 then
 				--rect(6*8+mx*8,4+my*8,16,16,0)
 				spr(32,6*8+mx*8,4+my*8,0,1,0,0,2,2)
 				clip(6*8+mx*8+1,4+my*8+2,14,12)
 				spr(128,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
 				spr(128,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
 				clip()
-				elseif id==96 then
+				elseif id==SP_CONV_RIGHT1 then
 				spr(32,6*8+mx*8,4+my*8,0,1,0,0,2,2)
 				clip(6*8+mx*8+1,4+my*8+2,14,12)
 				spr(160,6*8+mx*8+t*0.2%16,4+my*8,0,1,0,0,2,2)
 				spr(160,6*8+mx*8-16+t*0.2%16,4+my*8,0,1,0,0,2,2)
 				clip()
-				elseif id==98 then
+				elseif id==SP_CONV_LEFT2 then
 				spr(100,6*8+mx*8,4+my*8,0,1,0,0,2,2)
 				clip(6*8+mx*8+1,4+my*8+2,14,12)
 				spr(128,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
 				spr(128,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
 				clip()
-				elseif id==130 then
+				elseif id==SP_CONV_RIGHT2 then
 				spr(100,6*8+mx*8,4+my*8,0,1,0,0,2,2)
 				clip(6*8+mx*8+1,4+my*8+2,14,12)
 				spr(160,6*8+mx*8+t*0.2%16,4+my*8,0,1,0,0,2,2)
 				spr(160,6*8+mx*8-16+t*0.2%16,4+my*8,0,1,0,0,2,2)
 				clip()
-				elseif id==68 and mx==gx and my==gy then
+				elseif id==SP_PURSE and mx==gx and my==gy then
 				spr(70,6*8+mx*8,4+my*8,0,1,0,0,2,2)
-				elseif id==34 and mx==gx and my==gy then
+				elseif id==SP_BALLOON and mx==gx and my==gy then
 				spr(38,6*8+mx*8,4+my*8,0,1,0,0,2,2)
 				elseif id~=64+1 and id~=64+16 and id~=64+16+1 and id~=96+1 and id~=96+16 and id~=96+16+1 then
 				spr(id,6*8+mx*8,4+my*8,0)
