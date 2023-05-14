@@ -88,12 +88,12 @@ function draw_scores()
 
     -- vertical numbers   
         for j=1,2 do
-        local msg=string.format('%.5d',get_score(j))
-        local col=3
-        if j==2 then col=6 end
-        for c=1,#msg do
-        print(string.sub(msg,c,c),6*8/2-3+(j-1)*(240-6*8),48+c*6,col)
-        end
+            local msg=string.format('%.5d',get_score(j))
+            local col=3
+            if j==2 then col=6 end
+            for c=1,#msg do
+                print(string.sub(msg,c,c),6*8/2-3+(j-1)*(240-6*8),48+c*6,col)
+            end
         end
 end
 
