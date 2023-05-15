@@ -392,7 +392,7 @@ end
 function rem_active(i)
     local a=active[i]
     if (mget(a.x,a.y)==SP_BALLOON or mget(a.x,a.y)==SP_PURSE) and a.sc>0 then 
-    		scores[posstr(a.x,a.y)]=a.sc 
+        scores[posstr(a.x,a.y)]=a.sc 
     end
     table.remove(active,i)
 end
