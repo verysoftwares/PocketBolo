@@ -50,7 +50,7 @@ function handle_mouse()
 end
 
 function game_tick()
-  if t%16==0 then
+    if t%16==0 then
         process_active()
 
         if (turnstart and #active==0) 
