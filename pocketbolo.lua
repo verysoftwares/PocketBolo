@@ -146,7 +146,7 @@ function draw_map()
                     if a.x==mx and a.y==my and a.sc>0 then
                         local tw=print(a.sc,0,-6,0,false,1,true)
                         for i,v in ipairs(dirs) do
-                            print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)                 
+                            print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
                         end
                         print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
                     end
