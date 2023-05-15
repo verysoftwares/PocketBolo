@@ -140,14 +140,14 @@ function draw_map()
                 if scores[posstr(mx,my)] then 
                     local tw=print(scores[posstr(mx,my)],0,-6,0,false,1,true)
                     for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
-		                print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
+                        print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
                     end
                     print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
                 end
                 for i,a in ipairs(active) do
                     if a.x==mx and a.y==my and a.sc>0 then
                         local tw=print(a.sc,0,-6,0,false,1,true)
-				        for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
+                        for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
                             print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)                 
                         end
                         print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)                 
@@ -166,11 +166,16 @@ function draw_map()
 end
 
 function gameover()
-    return ai_select(1)<0 and ai_select(2)<0
+    return #active==0 and ai_select(1)<0 and ai_select(2)<0
 end
 
 function view_results()
     sc_t=sc_t or t
+    if sc_t==t then
+    		trace('----',4)
+    		trace(string.format('Orange: %d',get_score(1)),3)
+    		trace(string.format('Green: %d',get_score(2)),6)
+    end
     
     rect(0,16-2,240,32,9)
     
@@ -210,7 +215,6 @@ function select_active(mox,moy)
     tilex,tiley=(mox-6*8)/8,(moy-4)/8
     if left and not leftheld and #active==0 then
         if (turn==1 and mget(tilex,tiley)==SP_BALLOON) or (turn==2 and mget(tilex,tiley)==SP_PURSE) then
-            --trace('balloon')
             turnstart=true
             local found=false
             for i,a in ipairs(active) do
@@ -319,7 +323,7 @@ function move_horiz(i,id,dx,dy)
     local a=active[i]
     if dx<0 then 
         if id==SP_CONV_LEFT1 then
-            local base=SP_CONV_RIGHT2--96
+            local base=SP_CONV_RIGHT2
             for sx=0,2-1 do for sy=0,2-1 do
                 mset(a.x+sx,a.y+dy+sy,base+sx+sy*16)
             end end
@@ -382,7 +386,7 @@ function obj_collide(i,id,dx,dy)
         mset(a.x+sx,a.y+sy,0)
         mset(a.x+sx+dx,a.y+dy+sy,0)
     end end
-    scores[posstr(a.x,a.y+dy)]=nil
+    scores[posstr(a.x+dx,a.y+dy)]=nil
     coll[posstr(a.x,a.y)]=0
     coll[posstr(a.x+dx,a.y+dy)]=0
     sfx(20,'A-5',32,2)
