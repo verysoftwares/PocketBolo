@@ -97,6 +97,7 @@ function draw_scores()
         end
 end
 
+dirs={{-1,0},{1,0},{0,-1},{0,1}}
 function draw_map()
     for mx=30-12-1,0,-1 do for my=16-1,0,-1 do
         local id=mget(mx,my)
@@ -136,7 +137,7 @@ function draw_map()
             if id==SP_BALLOON or id==SP_PURSE then
                 if scores[posstr(mx,my)] then 
                     local tw=print(scores[posstr(mx,my)],0,-6,0,false,1,true)
-                    for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
+                    for i,v in ipairs(dirs) do
                         print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)
                     end
                     print(scores[posstr(mx,my)],6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
@@ -144,10 +145,10 @@ function draw_map()
                 for i,a in ipairs(active) do
                     if a.x==mx and a.y==my and a.sc>0 then
                         local tw=print(a.sc,0,-6,0,false,1,true)
-                        for i,v in ipairs({{-1,0},{1,0},{0,-1},{0,1}}) do
+                        for i,v in ipairs(dirs) do
                             print(a.sc,6*8+mx*8+8-tw/2+v[1],4+my*8+6+v[2],1,false,1,true)                 
                         end
-                        print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)                 
+                        print(a.sc,6*8+mx*8+8-tw/2,4+my*8+6,4,false,1,true)
                     end
                 end
             end
