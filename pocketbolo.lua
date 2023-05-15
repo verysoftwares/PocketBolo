@@ -209,7 +209,7 @@ end
 function select_active(mox,moy)
     local tilex,tiley=(mox-6*8)/8,(moy-4)/8
     if left and not leftheld and #active==0 then
-        if (turn==1 and mget(tilex,tiley)==34) or (turn==2 and mget(tilex,tiley)==68) then
+        if (turn==1 and mget(tilex,tiley)==SP_BALLOON) or (turn==2 and mget(tilex,tiley)==SP_PURSE) then
             --trace('balloon')
             turnstart=true
             local found=false
@@ -248,7 +248,7 @@ end
 function ai_select(j)
     local avail={}
     for tx=0,18-1,2 do for ty=0,16-1,2 do
-        if (j==1 and mget(tx,ty)==34) or (j==2 and mget(tx,ty)==68) then
+        if (j==1 and mget(tx,ty)==SP_BALLOON) or (j==2 and mget(tx,ty)==SP_PURSE) then
             if can_move(tx,ty,j) then
                 table.insert(avail,{x=tx,y=ty})
             end
@@ -391,7 +391,9 @@ end
 
 function rem_active(i)
     local a=active[i]
-    if (mget(a.x,a.y)==34 or mget(a.x,a.y)==68) and a.sc>0 then scores[posstr(a.x,a.y)]=a.sc end
+    if (mget(a.x,a.y)==SP_BALLOON or mget(a.x,a.y)==SP_PURSE) and a.sc>0 then 
+    		scores[posstr(a.x,a.y)]=a.sc 
+    end
     table.remove(active,i)
 end
 
@@ -468,8 +470,8 @@ end
 
 function get_score(j)
     local out=0 
-    local tgt=34
-    if j==2 then tgt=68 end
+    local tgt=SP_BALLOON
+    if j==2 then tgt=SP_PURSE end
     for i,a in ipairs(active) do
     if mget(a.x,a.y)==tgt then out=out+a.sc end
     end
