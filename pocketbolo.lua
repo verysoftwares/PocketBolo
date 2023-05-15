@@ -522,6 +522,7 @@ TIC=titlescr
 music(0)
 if demo then
   TIC=update
+  generate_map()
   music(1)
   chars[1].i=2
 end
