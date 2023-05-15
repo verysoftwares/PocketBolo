@@ -118,12 +118,9 @@ function draw_map()
             clip(6*8+mx*8+1,4+my*8+2,14,12)
             if sp2==128 then
                 spr(sp2,6*8+mx*8-t*0.2%16,4+my*8,0,1,0,0,2,2)
-            elseif sp2==160 then
-                spr(sp2,6*8+mx*8+t*0.2%16,4+my*8,0,1,0,0,2,2)
-            end
-            if sp2==128 then
                 spr(sp2,6*8+mx*8+16-t*0.2%16,4+my*8,0,1,0,0,2,2)
             elseif sp2==160 then
+                spr(sp2,6*8+mx*8+t*0.2%16,4+my*8,0,1,0,0,2,2)
                 spr(sp2,6*8+mx*8-16+t*0.2%16,4+my*8,0,1,0,0,2,2)
             end
             clip()
